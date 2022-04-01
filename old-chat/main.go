@@ -4,6 +4,7 @@ import (
 	"flag"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	"github.com/ssoql/faq-chat-bot/old-chat"
 	"log"
 	"net/http"
 	"strconv"
@@ -106,20 +107,20 @@ func serveHome(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.Println("Serve source")
-	http.ServeFile(w, r, "./public/index.html")
+	http.ServeFile(w, r, "./public/index.tmpl")
 }
 
 func main() {
-	chatbot := NewWebAssistant()
+	chatbot := old_chat.NewWebAssistant()
 
-	hub := NewHub(chatbot)
+	hub := old_chat.NewHub(chatbot)
 
-	startChatHub(hub)
+	old_chat.startChatHub(hub)
 	log.Println("Server started on port: " + *addr)
 	http.HandleFunc("/", serveHome)
 	//http.HandleFunc("/ws", ServeWs(hub))
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		ServeWs(hub, w, r)
+		old_chat.ServeWs(hub, w, r)
 	})
 	err := http.ListenAndServe(*addr, nil)
 	if err != nil {
@@ -135,7 +136,7 @@ func main() {
 	//r.Use(static.Serve("/", static.LocalFile("./public", true)))
 	//
 	//r.NoRoute(func(c *gin.Context) {
-	//	c.File("./public/index.html")
+	//	c.File("./public/index.tmpl")
 	//})
 	//
 	//r.Run(":8005")
