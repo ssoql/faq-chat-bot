@@ -2,7 +2,8 @@ package services
 
 import (
 	"fmt"
-	"github.com/ssoql/faq-chat-bot/src/api/models"
+	"github.com/gin-gonic/gin"
+	"github.com/ssoql/faq-chat-bot/src/api/models/chats"
 
 	"log"
 )
@@ -16,43 +17,43 @@ var (
 )
 
 type chatService struct {
-	clients      map[*models.Client]bool
-	broadcastmsg chan *models.ClientMessage
-	register     chan *models.Client
-	unregister   chan *models.Client
+	clients      map[*chats.Client]bool
+	broadcastmsg chan *chats.ClientMessage
+	register     chan *chats.Client
+	unregister   chan *chats.Client
 	Testing      chan string
 }
 
 type ChatServiceInterface interface {
 	Run()
-	Register(*models.Client)
-	Unregister(*models.Client)
-	Broadcast(*models.ClientMessage)
+	Register(*chats.Client)
+	Unregister(*chats.Client)
+	Broadcast(*chats.ClientMessage)
 }
 
 func init() {
 	ChatService = &chatService{
-		broadcastmsg: make(chan *models.ClientMessage),
-		register:     make(chan *models.Client),
-		unregister:   make(chan *models.Client),
-		clients:      make(map[*models.Client]bool),
+		broadcastmsg: make(chan *chats.ClientMessage),
+		register:     make(chan *chats.Client),
+		unregister:   make(chan *chats.Client),
+		clients:      make(map[*chats.Client]bool),
 	}
 }
 
-func (ch *chatService) Unregister(c *models.Client) {
+func (ch *chatService) Unregister(c *chats.Client) {
 	ch.unregister <- c
 }
 
-func (ch *chatService) Broadcast(msg *models.ClientMessage) {
+func (ch *chatService) Broadcast(msg *chats.ClientMessage) {
 	ch.broadcastmsg <- msg
 }
 
-func (ch *chatService) Register(c *models.Client) {
+func (ch *chatService) Register(c *chats.Client) {
 	ch.register <- c
 	log.Printf("registered in hub \n")
 }
 
-func (ch *chatService) RegisterRead(c *models.Client) {
+func (ch *chatService) RegisterRead(c *chats.Client) {
 	ch.register <- c
 }
 
@@ -86,4 +87,19 @@ func (ch *chatService) Run() {
 			client.SendMsg([]byte(reply))
 		}
 	}
+}
+
+func ServeWs(c *gin.Context) {
+	log.Println("Serve ws")
+	println(ChatService)
+	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	client := chats.NewClient(conn)
+	ChatService.Register(client)
+
+	go writePump(client)
+	readPump(client)
 }
