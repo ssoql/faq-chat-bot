@@ -2,9 +2,8 @@ package services
 
 import (
 	"bytes"
-	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	"github.com/ssoql/faq-chat-bot/src/api/models"
+	"github.com/ssoql/faq-chat-bot/src/api/models/chats"
 	"log"
 	"time"
 )
@@ -32,7 +31,7 @@ var (
 	}
 )
 
-func readPump(c *models.Client) {
+func readPump(c *chats.Client) {
 	log.Println("start read pump")
 
 	defer func() {
@@ -55,12 +54,12 @@ func readPump(c *models.Client) {
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
 		//c.hub.broadcast <- message
-		clientmsg := models.NewClientMessage(c, message)
+		clientmsg := chats.NewClientMessage(c, message)
 		ChatService.Broadcast(clientmsg)
 	}
 }
 
-func writePump(c *models.Client) {
+func writePump(c *chats.Client) {
 	log.Println("start write pump")
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
@@ -114,19 +113,4 @@ func writePump(c *models.Client) {
 			}
 		}
 	}
-}
-
-func ServeWs(c *gin.Context) {
-	log.Println("Serve ws")
-	println(ChatService)
-	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	client := models.NewClient(conn)
-	ChatService.Register(client)
-
-	go writePump(client)
-	readPump(client)
 }

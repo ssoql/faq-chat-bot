@@ -1,4 +1,4 @@
-package models
+package chats
 
 import (
 	"github.com/gorilla/websocket"
