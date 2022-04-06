@@ -1,19 +1,9 @@
 FROM golang:1.18
 
-#ENV ELASTIC_HOSTS=localhost:9200
-#ENV LOG_LEVEL=info
-
-# Configure the repo url so we can configure our work directory:
 ENV REPO_URL=github.com/ssoql/faq-chat-bot
-
 # Setup out $GOPATH
 ENV GOPATH=/app
-
 ENV APP_PATH=$GOPATH/src/$REPO_URL
-
-# /app/src/github.com/federicoleon/bookstore_items-api/src
-
-# Copy the entire source code from the current directory to $WORKPATH
 ENV WORKPATH=$APP_PATH/src
 COPY src $WORKPATH
 WORKDIR $WORKPATH/api
