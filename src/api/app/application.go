@@ -5,6 +5,8 @@ import (
 	"github.com/ssoql/faq-chat-bot/src/api/config"
 	"github.com/ssoql/faq-chat-bot/src/api/datasources/faqs_db"
 	"github.com/ssoql/faq-chat-bot/src/api/models/faqs"
+	"os"
+	"path/filepath"
 )
 
 var (
@@ -13,8 +15,7 @@ var (
 
 func init() {
 	router = gin.Default()
-	//router.LoadHTMLGlob("templates/*.tmpl")
-	router.LoadHTMLGlob("/home/soql/go/src/github.com/ssoql/faq-chat-bot/src/api/templates/*.tmpl")
+	router.LoadHTMLGlob(filepath.Join(os.Getenv("TMPL_PATH"), "*.tmpl"))
 }
 
 func StartApp() {
