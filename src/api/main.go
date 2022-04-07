@@ -6,6 +6,8 @@ import (
 )
 
 func main() {
+	// initialize chat goroutine
 	go services.ChatService.Run()
+	// start web app
 	app.StartApp()
 }

@@ -21,6 +21,7 @@ func init() {
 func StartApp() {
 	faqs_db.MigrateData(&faqs.Faq{})
 	mapUrls()
+
 	if err := router.Run(config.GetPort()); err != nil {
 		panic(err)
 	}
