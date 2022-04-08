@@ -1,0 +1,37 @@
+version: '3.1'
+
+services:
+  app:
+    image: faq-chat-bot
+    restart: always
+    depends_on:
+      - db
+      - elastic
+    ports:
+      - 8083:8083
+    environment:
+      - APP_MYSQL_USERNAME=root
+      - APP_MYSQL_PASSWORD=example
+      - APP_MYSQL_HOST=localhost
+      - APP_MYSQL_PORT=3306
+      - APP_MYSQL_SCHEMA=faq_chat_bot
+      - APP_ES_HOSTS=http://localhost:9200
+      - WAIT_FOR_MYSQL=true
+  db:
+    # Use root/example as user/password credentials
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+
+  elastic:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.2
+    ports:
+      - 9200:9200
+      - 9300:9300
+    environment:
+      - "discovery.type=single-node"
+      - "ES_JAVA_OPTS=-Xms256m -Xmx256m"

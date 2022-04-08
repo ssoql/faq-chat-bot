@@ -6,10 +6,10 @@ ENV GOPATH=/app
 ENV APP_PATH=$GOPATH/src/$REPO_URL
 ENV WORKPATH=$APP_PATH/src
 # Setup path for templates
-ENV TMPL_PATH=$WORKPATH/api/templates/
+ENV TMPL_PATH=$WORKPATH/templates/
 
 COPY src $WORKPATH
-WORKDIR $WORKPATH/api
+WORKDIR $WORKPATH
 
 RUN go mod init faq-chat-bot
 RUN go mod tidy
