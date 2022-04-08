@@ -12,11 +12,10 @@ services:
     environment:
       - APP_MYSQL_USERNAME=root
       - APP_MYSQL_PASSWORD=example
-      - APP_MYSQL_HOST=localhost
+      - APP_MYSQL_HOST=db
       - APP_MYSQL_PORT=3306
       - APP_MYSQL_SCHEMA=faq_chat_bot
-      - APP_ES_HOSTS=http://localhost:9200
-      - WAIT_FOR_MYSQL=true
+      - APP_ES_HOSTS=http://elastic:9200
   db:
     # Use root/example as user/password credentials
     image: mysql:8
