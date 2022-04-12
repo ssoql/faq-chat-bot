@@ -8,6 +8,13 @@ import (
 	"strings"
 )
 
+type FaqRepositoryInterface interface {
+	Get() api_errors.ApiError
+	Save() api_errors.ApiError
+	Update() api_errors.ApiError
+	Delete() api_errors.ApiError
+}
+
 func (faq *Faq) Get() api_errors.ApiError {
 	if err := faqs_db.Client.Where("id = ?", faq.Id).First(faq).Error; err != nil {
 		if strings.Contains(strings.ToLower(err.Error()), "record not found") {

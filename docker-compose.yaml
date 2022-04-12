@@ -10,6 +10,7 @@ services:
     ports:
       - 8083:8083
     environment:
+      - APP_ENV=dev
       - APP_MYSQL_USERNAME=root
       - APP_MYSQL_PASSWORD=example
       - APP_MYSQL_HOST=db

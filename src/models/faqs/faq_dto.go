@@ -24,6 +24,16 @@ type FaqCreateInput struct {
 	Answer   string `json:"answer" binding:"required"`
 }
 
+type CreateFaqsResult struct {
+	Response *Faq                `json:"faq"`
+	Error    api_errors.ApiError `json:"error"`
+}
+
+type CreateFaqsResponse struct {
+	StatusCode int                `json:"status"`
+	Results    []CreateFaqsResult `json:"results"`
+}
+
 type FaqUpdateInput FaqCreateInput
 
 func (faq *Faq) Validate() api_errors.ApiError {
