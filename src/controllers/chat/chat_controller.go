@@ -6,5 +6,5 @@ import (
 )
 
 func RunWebSocket(c *gin.Context) {
-	services.ServeWs(c)
+	services.ChatService.ServeWs(c)
 }

@@ -24,7 +24,19 @@ func Create(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusCreated, result)
+}
 
+func CreateMany(c *gin.Context) {
+	var input []faqs.FaqCreateInput
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		apiErr := api_errors.NewBadRequestError("invalid json data")
+		c.JSON(apiErr.Status(), apiErr)
+		return
+	}
+
+	result := services.FaqService.CreateFaqs(input)
+	c.JSON(result.StatusCode, result)
 }
 
 func Update(c *gin.Context) {
@@ -37,6 +49,7 @@ func Update(c *gin.Context) {
 	if err := c.ShouldBindJSON(&faq); err != nil {
 		apiErr := api_errors.NewBadRequestError("invalid json data")
 		c.JSON(apiErr.Status(), apiErr)
+		return
 	}
 
 	result, opErr := services.FaqService.UpdateFaq(faqId, &faq)

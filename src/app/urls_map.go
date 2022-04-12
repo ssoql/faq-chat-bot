@@ -15,4 +15,5 @@ func mapUrls() {
 	router.GET("/faq/:faq_id", faq.Get)
 	router.PATCH("/faq/:faq_id", faq.Update)
 	router.DELETE("/faq/:faq_id", faq.Delete)
+	router.POST("/faqs", faq.CreateMany)
 }
