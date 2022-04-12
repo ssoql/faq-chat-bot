@@ -28,16 +28,18 @@ type esDocumentInterface interface {
 }
 
 func init() {
-	client, err := elastic.NewClient(
-		elastic.SetURL(config.GetEsHosts()),
-		elastic.SetHealthcheckInterval(1*time.Second),
-		//elastic.SetErrorLog(log),
-		//elastic.SetInfoLog(log),
-	)
-	if err != nil {
-		panic(err)
+	if config.IsProduction() || config.IsDevelop() {
+		client, err := elastic.NewClient(
+			elastic.SetURL(config.GetEsHosts()),
+			elastic.SetHealthcheckInterval(1*time.Second),
+			//elastic.SetErrorLog(log),
+			//elastic.SetInfoLog(log),
+		)
+		if err != nil {
+			panic(err)
+		}
+		EsClient.setClient(client)
 	}
-	EsClient.setClient(client)
 }
 
 func (c *esClient) setClient(client *elastic.Client) {

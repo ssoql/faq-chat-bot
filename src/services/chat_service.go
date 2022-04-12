@@ -28,6 +28,7 @@ type ChatServiceInterface interface {
 	Register(*chats.Client)
 	Unregister(*chats.Client)
 	Broadcast(*chats.ClientMessage)
+	ServeWs(c *gin.Context)
 }
 
 func init() {
@@ -81,8 +82,7 @@ func (ch *chatService) Run() {
 	}
 }
 
-func ServeWs(c *gin.Context) {
-	println(ChatService)
+func (ch *chatService) ServeWs(c *gin.Context) {
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		log.Println(err)

@@ -5,8 +5,8 @@ import (
 	"net/http"
 )
 
-const statusString = "OK"
+const StatusString = "OK"
 
 func Check(c *gin.Context) {
-	c.String(http.StatusOK, statusString)
+	c.String(http.StatusOK, StatusString)
 }

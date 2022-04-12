@@ -6,6 +6,7 @@ const (
 	LogLevel   = "info"
 	appEnv     = "APP_ENV"
 	production = "prod"
+	develop    = "dev"
 	port       = "8083"
 	dbUsername = "APP_MYSQL_USERNAME"
 	dbPassword = "APP_MYSQL_PASSWORD"
@@ -17,6 +18,10 @@ const (
 
 func IsProduction() bool {
 	return os.Getenv(appEnv) == production
+}
+
+func IsDevelop() bool {
+	return os.Getenv(appEnv) == develop
 }
 
 func GetPort() string {
