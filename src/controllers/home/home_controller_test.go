@@ -1,7 +1,6 @@
-package tests
+package home
 
 import (
-	"github.com/ssoql/faq-chat-bot/src/controllers/home"
 	"github.com/ssoql/faq-chat-bot/src/utils/test_utils"
 	"github.com/stretchr/testify/assert"
 	"html/template"
@@ -19,7 +18,7 @@ func TestShowHomePage(t *testing.T) {
 	templ := template.Must(template.New("index.tmpl").Parse(`{{.title}}`))
 	router.SetHTMLTemplate(templ)
 
-	home.ShowHomePage(c)
+	ShowHomePage(c)
 	assert.EqualValues(t, http.StatusOK, response.Code)
 	assert.EqualValues(t,
 		true,

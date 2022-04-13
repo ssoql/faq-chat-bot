@@ -1,9 +1,8 @@
-package tests
+package chat
 
 import (
-	"github.com/ssoql/faq-chat-bot/src/controllers/chat"
+	"github.com/ssoql/faq-chat-bot/src/mocks"
 	"github.com/ssoql/faq-chat-bot/src/services"
-	"github.com/ssoql/faq-chat-bot/src/tests/mocks"
 	"github.com/ssoql/faq-chat-bot/src/utils/test_utils"
 	"github.com/stretchr/testify/assert"
 	"net/http"
@@ -18,6 +17,6 @@ func TestRunWebSocketNoError(t *testing.T) {
 
 	services.ChatService = &mocks.ChatServiceMock{}
 
-	chat.RunWebSocket(c)
+	RunWebSocket(c)
 	assert.EqualValues(t, http.StatusOK, response.Code)
 }

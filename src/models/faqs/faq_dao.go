@@ -5,6 +5,7 @@ import (
 	"github.com/ssoql/faq-chat-bot/src/datasources/faqs_db"
 	"github.com/ssoql/faq-chat-bot/src/utils/api_errors"
 	"github.com/ssoql/faq-chat-bot/src/utils/crypto_utils"
+	"log"
 	"strings"
 )
 
@@ -28,7 +29,7 @@ func (faq *Faq) Get() api_errors.ApiError {
 func (faq *Faq) Save() api_errors.ApiError {
 	faq.UniqHash = crypto_utils.GetMd5(strings.ToLower(faq.Question))
 	if err := faqs_db.Client.Create(faq).Error; err != nil {
-		//logger.Error("error when trying to prepare save faq statement", err.Error())
+		log.Println("error when trying to prepare save faq statement", err.Error())
 		if strings.Contains(strings.ToLower(err.Error()), "duplicate") {
 			return api_errors.NewBadRequestError("this question already exists")
 		}
@@ -40,7 +41,7 @@ func (faq *Faq) Save() api_errors.ApiError {
 func (faq *Faq) Update() api_errors.ApiError {
 
 	if err := faqs_db.Client.Updates(&faq).Error; err != nil {
-		//logger.Error("error when trying to prepare save faq statement", err.Error())
+		log.Println("error when trying to prepare save faq statement", err.Error())
 		if strings.Contains(strings.ToLower(err.Error()), "duplicate") {
 			return api_errors.NewBadRequestError("this question already exists")
 		}

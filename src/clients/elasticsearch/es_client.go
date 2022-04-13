@@ -7,23 +7,21 @@ import (
 	"time"
 )
 
-const envElasticHosts = "ES_HOSTS"
-
-var EsClient esClientInterface = &esClient{}
+var EsClient EsClientInterface = &esClient{}
 
 type esClient struct {
 	client *elastic.Client
 }
 
-type esClientInterface interface {
-	setClient(*elastic.Client)
-	IndexData(string, esDocumentInterface) (*elastic.IndexResponse, error)
+type EsClientInterface interface {
+	SetClient(*elastic.Client)
+	IndexData(string, EsDocumentInterface) (*elastic.IndexResponse, error)
 	GetById(string, string) (*elastic.GetResult, error)
 	Search(string, elastic.Query, int) (*elastic.SearchResult, error)
 	DeleteByQuery(string, elastic.Query) error
 }
 
-type esDocumentInterface interface {
+type EsDocumentInterface interface {
 	GetStringId() string
 }
 
@@ -38,15 +36,15 @@ func init() {
 		if err != nil {
 			panic(err)
 		}
-		EsClient.setClient(client)
+		EsClient.SetClient(client)
 	}
 }
 
-func (c *esClient) setClient(client *elastic.Client) {
+func (c *esClient) SetClient(client *elastic.Client) {
 	c.client = client
 }
 
-func (c *esClient) IndexData(indexName string, document esDocumentInterface) (*elastic.IndexResponse, error) {
+func (c *esClient) IndexData(indexName string, document EsDocumentInterface) (*elastic.IndexResponse, error) {
 	ctx := context.Background()
 	result, err := c.client.Index().
 		Id(document.GetStringId()).
