@@ -15,7 +15,7 @@ func (f *FaqDocument) Save() api_errors.ApiError {
 	if err != nil {
 		return api_errors.NewInternalServerError(
 			"error when trying to save faq in ES",
-			errors.New("database error"))
+			errors.New("ES error"))
 
 	}
 	return nil
