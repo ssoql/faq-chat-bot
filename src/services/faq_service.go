@@ -171,4 +171,21 @@ func (s *faqService) InitializeDemoFaqs() {
 			log.Println(err.Message())
 		}
 	}
+	indexAllFaqs()
+}
+
+func indexAllFaqs() {
+	var faqItems faqs.Faqs
+	if err := faqItems.GetAll(); err != nil {
+		log.Println("there is no faq in the database")
+	} else {
+		// todo rewrite to goroutines and bulk insert into ES
+		for _, faq := range faqItems {
+			faqDoc := faqs.NewDocFromFaq(&faq)
+			if err := faqDoc.Save(); err != nil {
+				log.Println("problem with saving into ES: " + err.Error())
+			}
+		}
+	}
+	log.Println("indexed data into ES")
 }

@@ -21,7 +21,17 @@ func (faq *Faq) Get() api_errors.ApiError {
 		if strings.Contains(strings.ToLower(err.Error()), "record not found") {
 			return api_errors.NewNotFoundError("faq with given id does not exists")
 		}
-		return api_errors.NewInternalServerError("error when tying to fetch faq", errors.New("database error: "+err.Error()))
+		return api_errors.NewInternalServerError("error when tying to fetch faq", errors.New("database error"))
+	}
+	return nil
+}
+
+func (faqs *Faqs) GetAll() api_errors.ApiError {
+	if err := faqs_db.Client.Find(faqs).Error; err != nil {
+		if strings.Contains(strings.ToLower(err.Error()), "record not found") {
+			return api_errors.NewNotFoundError("there is no faqs in the DB")
+		}
+		return api_errors.NewInternalServerError("error when tying to fetch faqs", errors.New("database error"))
 	}
 	return nil
 }
