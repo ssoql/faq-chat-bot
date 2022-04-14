@@ -1,12 +1,11 @@
-package tests
+package faq
 
 import (
 	"encoding/json"
 	"errors"
-	"github.com/ssoql/faq-chat-bot/src/controllers/faq"
+	"github.com/ssoql/faq-chat-bot/src/mocks"
 	"github.com/ssoql/faq-chat-bot/src/models/faqs"
 	"github.com/ssoql/faq-chat-bot/src/services"
-	"github.com/ssoql/faq-chat-bot/src/tests/mocks"
 	"github.com/ssoql/faq-chat-bot/src/utils/api_errors"
 	"github.com/ssoql/faq-chat-bot/src/utils/test_utils"
 	"github.com/stretchr/testify/assert"
@@ -21,7 +20,7 @@ func TestCreateInvalidJsonData(t *testing.T) {
 	request, _ := http.NewRequest(http.MethodPost, "/faq", strings.NewReader(`{"}`))
 	c, _ := test_utils.GetContextMock(request, response)
 
-	faq.Create(c)
+	Create(c)
 	assert.EqualValues(t, http.StatusBadRequest, response.Code)
 
 	apiErr, err := api_errors.NewErrorFromBytes(response.Body.Bytes())
@@ -36,7 +35,7 @@ func TestCreateOperationError(t *testing.T) {
 	request, _ := http.NewRequest(http.MethodPost, "/faq", strings.NewReader(`{"question":"   ","answer":"   "}`))
 	c, _ := test_utils.GetContextMock(request, response)
 
-	faq.Create(c)
+	Create(c)
 	assert.EqualValues(t, http.StatusBadRequest, response.Code)
 
 	apiErr, err := api_errors.NewErrorFromBytes(response.Body.Bytes())
@@ -57,7 +56,7 @@ func TestCreateNoError(t *testing.T) {
 		},
 	}
 
-	faq.Create(c)
+	Create(c)
 	assert.EqualValues(t, http.StatusCreated, response.Code)
 
 	var result faqs.Faq
@@ -75,7 +74,7 @@ func TestUpdateInvalidJsonData(t *testing.T) {
 	c, _ := test_utils.GetContextMock(request, response)
 	c.AddParam("faq_id", "1")
 
-	faq.Update(c)
+	Update(c)
 	assert.EqualValues(t, http.StatusBadRequest, response.Code)
 
 	apiErr, err := api_errors.NewErrorFromBytes(response.Body.Bytes())
@@ -97,7 +96,7 @@ func TestUpdateOperationError(t *testing.T) {
 		},
 	}
 
-	faq.Update(c)
+	Update(c)
 	assert.EqualValues(t, http.StatusBadRequest, response.Code)
 
 	apiErr, err := api_errors.NewErrorFromBytes(response.Body.Bytes())
@@ -113,7 +112,7 @@ func TestUpdateInvalidId(t *testing.T) {
 	c, _ := test_utils.GetContextMock(request, response)
 	c.AddParam("faq_id", "x")
 
-	faq.Update(c)
+	Update(c)
 	assert.EqualValues(t, http.StatusBadRequest, response.Code)
 
 	apiErr, err := api_errors.NewErrorFromBytes(response.Body.Bytes())
@@ -135,7 +134,7 @@ func TestUpdateNoError(t *testing.T) {
 		},
 	}
 
-	faq.Update(c)
+	Update(c)
 	assert.EqualValues(t, http.StatusOK, response.Code)
 
 	var result faqs.Faq
@@ -153,7 +152,7 @@ func TestDeleteInvalidId(t *testing.T) {
 	c, _ := test_utils.GetContextMock(request, response)
 	c.AddParam("faq_id", "x")
 
-	faq.Delete(c)
+	Delete(c)
 	assert.EqualValues(t, http.StatusBadRequest, response.Code)
 
 	apiErr, err := api_errors.NewErrorFromBytes(response.Body.Bytes())
@@ -177,7 +176,7 @@ func TestDeleteOperationError(t *testing.T) {
 		},
 	}
 
-	faq.Delete(c)
+	Delete(c)
 	assert.EqualValues(t, http.StatusInternalServerError, response.Code)
 
 	apiErr, err := api_errors.NewErrorFromBytes(response.Body.Bytes())
@@ -200,7 +199,7 @@ func TestDeleteNoError(t *testing.T) {
 		},
 	}
 
-	faq.Delete(c)
+	Delete(c)
 	assert.EqualValues(t, http.StatusOK, response.Code)
 
 	var result map[string]string
@@ -216,7 +215,7 @@ func TestGetInvalidId(t *testing.T) {
 	c, _ := test_utils.GetContextMock(request, response)
 	c.AddParam("faq_id", "x")
 
-	faq.Get(c)
+	Get(c)
 	assert.EqualValues(t, http.StatusBadRequest, response.Code)
 
 	apiErr, err := api_errors.NewErrorFromBytes(response.Body.Bytes())
@@ -238,7 +237,7 @@ func TestGetOperationError(t *testing.T) {
 		},
 	}
 
-	faq.Get(c)
+	Get(c)
 	assert.EqualValues(t, http.StatusNotFound, response.Code)
 
 	apiErr, err := api_errors.NewErrorFromBytes(response.Body.Bytes())
@@ -260,7 +259,7 @@ func TestGetNoError(t *testing.T) {
 		},
 	}
 
-	faq.Get(c)
+	Get(c)
 	assert.EqualValues(t, http.StatusOK, response.Code)
 
 	var result faqs.Faq
@@ -277,7 +276,7 @@ func TestCreateManyInvalidJsonData(t *testing.T) {
 	request, _ := http.NewRequest(http.MethodPost, "/faqs", strings.NewReader(`{"}`))
 	c, _ := test_utils.GetContextMock(request, response)
 
-	faq.CreateMany(c)
+	CreateMany(c)
 	assert.EqualValues(t, http.StatusBadRequest, response.Code)
 
 	apiErr, err := api_errors.NewErrorFromBytes(response.Body.Bytes())
@@ -302,7 +301,7 @@ func TestCreateManyNoError(t *testing.T) {
 		},
 	}
 
-	faq.CreateMany(c)
+	CreateMany(c)
 	assert.EqualValues(t, http.StatusCreated, response.Code)
 
 	var result faqs.CreateFaqsResponse
