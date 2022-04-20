@@ -2,6 +2,7 @@ package services
 
 import (
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/olivere/elastic"
 	"github.com/ssoql/faq-chat-bot/src/clients/elasticsearch"
 	"github.com/ssoql/faq-chat-bot/src/datasources/faqs_db"
 	"github.com/ssoql/faq-chat-bot/src/mocks"
@@ -11,7 +12,119 @@ import (
 	"net/http"
 	"sync"
 	"testing"
+	"time"
 )
+
+func TestCreateFaqInvalidData(t *testing.T) {
+	input := &faqs.FaqCreateInput{Question: "", Answer: "yyy"}
+	result, err := FaqService.CreateFaq(input)
+
+	assert.Nil(t, result)
+	assert.NotNil(t, err)
+	assert.EqualValues(t, http.StatusBadRequest, err.Status())
+	assert.EqualValues(t, "invalid question", err.Message())
+}
+
+func TestCreateFaqDbError(t *testing.T) {
+	input := &faqs.FaqCreateInput{Question: "xxx", Answer: "yyy"}
+	db, _ := mocks.GetDbMock()
+	faqs_db.Client = db
+
+	result, err := FaqService.CreateFaq(input)
+
+	assert.Nil(t, result)
+	assert.NotNil(t, err)
+	assert.EqualValues(t, http.StatusInternalServerError, err.Status())
+	assert.EqualValues(t, "error when tying to save faq", err.Message())
+}
+
+func TestCreateFaqEsError(t *testing.T) {
+	input := &faqs.FaqCreateInput{Question: "xxx", Answer: "yyy"}
+	db, mock := mocks.GetDbMock()
+
+	mock.ExpectBegin()
+	mock.ExpectExec("^INSERT INTO `faqs`.*").
+		WithArgs("f561aaf6ef0bf14d4208bb46a4ccb3ad",
+			input.Question, input.Answer,
+			sqlmock.AnyArg(),
+			sqlmock.AnyArg(),
+			nil).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
+
+	faqs_db.Client = db
+	elasticsearch.EsClient = &mocks.EsClientMock{
+		IndexCallback: func() (*elastic.IndexResponse, error) {
+			return nil, api_errors.NewBadRequestError("There is no active ES node")
+		}}
+
+	result, err := FaqService.CreateFaq(input)
+
+	assert.Nil(t, result)
+	assert.NotNil(t, err)
+	assert.EqualValues(t, http.StatusInternalServerError, err.Status())
+	assert.EqualValues(t, "error when trying to save faq in ES", err.Message())
+}
+
+func TestCreateFaqNoError(t *testing.T) {
+	input := &faqs.FaqCreateInput{Question: "xxx", Answer: "yyy"}
+	db, mock := mocks.GetDbMock()
+
+	mock.ExpectBegin()
+	mock.ExpectExec("^INSERT INTO `faqs`.*").
+		WithArgs("f561aaf6ef0bf14d4208bb46a4ccb3ad",
+			input.Question, input.Answer,
+			sqlmock.AnyArg(),
+			sqlmock.AnyArg(),
+			nil).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
+
+	faqs_db.Client = db
+	elasticsearch.EsClient = &mocks.EsClientMock{
+		IndexCallback: func() (*elastic.IndexResponse, error) {
+			return &elastic.IndexResponse{}, nil
+		}}
+
+	result, err := FaqService.CreateFaq(input)
+
+	assert.Nil(t, err)
+	assert.NotNil(t, result)
+	assert.EqualValues(t, 1, result.Id)
+	assert.EqualValues(t, "xxx", result.Question)
+	assert.EqualValues(t, "yyy", result.Answer)
+}
+
+func TestGetFaqDbError(t *testing.T) {
+	db, _ := mocks.GetDbMock()
+	faqs_db.Client = db
+
+	result, err := FaqService.GetFaq(0)
+
+	assert.Nil(t, result)
+	assert.NotNil(t, err)
+	assert.EqualValues(t, http.StatusInternalServerError, err.Status())
+	assert.EqualValues(t, "error when tying to fetch faq", err.Message())
+}
+
+func TestGetFaqNoError(t *testing.T) {
+	db, mock := mocks.GetDbMock()
+
+	mockedRow := sqlmock.NewRows([]string{"id", "question", "answer", "created_at", "updated_at", "deleted_at"}).
+		AddRow(1, "xxx", "yyy", time.Now(), time.Now(), nil)
+	mock.ExpectQuery("SELECT").
+		WillReturnRows(mockedRow)
+
+	faqs_db.Client = db
+
+	result, err := FaqService.GetFaq(1)
+
+	assert.Nil(t, err)
+	assert.NotNil(t, result)
+	assert.EqualValues(t, 1, result.Id)
+	assert.EqualValues(t, "xxx", result.Question)
+	assert.EqualValues(t, "yyy", result.Answer)
+}
 
 func TestCreateFaqConcurrentInvalidData(t *testing.T) {
 	input := &faqs.FaqCreateInput{}
@@ -63,7 +176,10 @@ func TestCreateFaqConcurrentNoError(t *testing.T) {
 	mock.ExpectCommit()
 
 	faqs_db.Client = db
-	elasticsearch.EsClient = &mocks.EsClientMock{}
+	elasticsearch.EsClient = &mocks.EsClientMock{
+		IndexCallback: func() (*elastic.IndexResponse, error) {
+			return &elastic.IndexResponse{}, nil
+		}}
 
 	service := faqService{}
 	go service.CreateFaqConcurrent(input, outChan)

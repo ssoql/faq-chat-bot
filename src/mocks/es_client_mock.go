@@ -6,11 +6,12 @@ import (
 )
 
 type EsClientMock struct {
+	IndexCallback func() (*elastic.IndexResponse, error)
 }
 
 func (c *EsClientMock) SetClient(client *elastic.Client) {}
 func (c *EsClientMock) IndexData(name string, doc elasticsearch.EsDocumentInterface) (*elastic.IndexResponse, error) {
-	return nil, nil
+	return c.IndexCallback()
 }
 func (c *EsClientMock) GetById(string, string) (*elastic.GetResult, error) {
 	return nil, nil
