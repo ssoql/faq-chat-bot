@@ -1,5 +1,5 @@
 # faq-chat-bot
-Simple chat bot serving answers for frequently asked questions
+Simple chat bot serving answers for frequently asked questions.
 
 **Quick start:**
 
